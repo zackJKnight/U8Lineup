@@ -41,7 +41,7 @@ Function New-PositionList {
 
     #Room for improvement. This is the most basic layout. We can introduce configurable positions later, but I want to work out how to fill a given set of positions.
     $position = [Position]::new()
-    $position.Name = $position.PositionNames[0]         
+    $position.Name = 'Goalie'         
     $positions.Add($position)    
     $position = [Position]::new()
     $position.Name = 'Defense' 
@@ -83,7 +83,7 @@ Function Set-StartingPlayer {
     # too easy, it's time to shake it up to challenge the players. 
     # I often try scenarios with all periods full and then (if filling lineup to win- which is secondary to player pref/skill needs) change names based on ability/endurance
     
-    #need to know open positions- or at some point we will. perhaps not right now.
+    # need to know open positions- or at some point we will. perhaps not right now.
     # To loop the periods or not to loop the periods... Keep track of a player's starting positions on the player?
     # as more positions are filled, we'll need to know filled positions and who fills them.
         
@@ -116,7 +116,7 @@ Function Set-StartingPlayer {
         Write-Output $GoodFitPlayer
     }
     else {
-        throw "No Player Found to Fill Position: $($CurrentPosition.Name) in Period: $($CurrentPeriod.Number)"
+        #throw "No Player Found to Fill Position: $($CurrentPosition.Name) in Period: $($CurrentPeriod.Number)"
     }
 }
 
@@ -159,4 +159,11 @@ $game.Periods | ForEach-Object {
     }
 }
 
-$game
+$game.Periods | ForEach-Object {
+    $periodNumber = $_.Number
+ $_.Positions | ForEach-Object {
+     "Period: $($periodNumber) - Position: $($_.Name) - Player: $($_.StartingPlayer.FirstName)"
+ }
+ "================================================="
+ [System.Environment]::NewLine
+}
