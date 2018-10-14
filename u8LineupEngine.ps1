@@ -35,14 +35,14 @@ Function Get-GameData {
     $gameData
 }
 
-Function Get-Player {
+Function Set-StartingPlayer {
     Param(
         [Game]$CurrentGame,
         [System.Collections.Generic.List[Player]]$AvailablePlayers
     )
 
     #get the first period that isn't completely filled. that was my first thought. BUT. Manually, I look at all the periods before I can complete the first period. 
-    #and I often try scenarios with all periods full and then change names based on ability/endurance
+    #and I often try scenarios with all periods full and then (if filling lineup to win- which is secondary to player pref/skill needs) change names based on ability/endurance
     #look at number of filled position.
     #if none, find the goalie first. 
 
@@ -55,14 +55,16 @@ Function Get-Player {
         }
     
 
-    #TODO - build an abstraction to allow user to define positions.
+    #TODO - build an abstraction to allow user to defined positions.
     $playersWhoPreferGoalie = $AvailablePlayers | Where-Object {$_.PostionPrefRank -match 'goalie=1'}
     $playersWhoPreferDefense = $AvailablePlayers | Where-Object {$_.PostionPrefRank -match 'defense=1'}
     $playersWhoPreferMid = $AvailablePlayers | Where-Object {$_.PostionPrefRank -match 'mid=1'}
     $playersWhoPreferForward = $AvailablePlayers | Where-Object {$_.PostionPrefRank -match 'forward=1'}
 
-    # can you give a player his first pick?
+    # can you give a player their first pick?
     $UnfilledGoalie = $UnfilledPositions | Where-Object { $_.Name -eq 'Goalie' }
+
+    $UnfilledGoalie
     # can you give a player their second pick?
     # so on
     # so forth
@@ -91,12 +93,28 @@ $GameData.players | ForEach-Object {
 
 [System.Collections.Generic.List[Position]]$positions = New-Object System.Collections.Generic.List[Position]
 
-1..$TotalPositions | ForEach-Object {
-    $positions.Add([Position]::new()) 
-}
-
-#TODO Set position names???
-
+    #Room for improvement. This is the most basic layout. We can introduce configurable positions later, but I want to work out how to fill a given set of positions.
+    $position = [Position]::new()
+    $position.Name = $position.PositionNames[0]         
+    $positions.Add($position)    
+    $position = [Position]::new()
+    $position.Name = 'Defense' 
+    $positions.Add($position)
+    $position = [Position]::new()
+    $position.Name = 'Defense' 
+    $positions.Add($position)
+    $position = [Position]::new()
+    $position.Name = 'Mid' 
+    $positions.Add($position)
+    $position = [Position]::new()
+    $position.Name = 'Mid' 
+    $positions.Add($position)
+    $position = [Position]::new()
+    $position.Name = 'Forward' 
+    $positions.Add($position)
+    $position = [Position]::new()
+    $position.Name = 'Forward' 
+    $positions.Add($position)
 
 1..$TotalPeriods | ForEach-Object {
     $game.Periods.Add([Period]::new($_, $PeriodDurationMinutes))
@@ -106,10 +124,15 @@ $game.Periods | ForEach-Object {
     $_.Positions = $positions
 }
 
-$poZishes = $game.Periods | Select-Object -ExpandProperty Positions 
+$game.Periods | ForEach-Object{
+    $PeriodPositions = $_ | Select-Object -ExpandProperty Positions 
 
-$poZishes | ForEach-Object {
-    $_.StartingPlayer = (Get-Player -CurrentGame $game -AvailablePlayers $players)
+    $PeriodPositions | ForEach-Object {
+        #TODO this is not what I want. because sometimes the starting player will be set, but I'll find a reason to change it as the positions fill in.
+        if($null -eq $_.StartingPlayer){
+    $_.StartingPlayer = (Set-StartingPlayer -CurrentGame $game -AvailablePlayers $players)
+        }
+}
 }
 
 $game
