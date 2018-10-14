@@ -47,12 +47,27 @@ Function Get-Player {
     #and I often try scenarios with all periods full and then change names based on ability/endurance
     #look at number of filled position.
     #if none, find the goalie first. 
+
+    #need to know open positions.
+    #need to know filled positions and who fills them.
+
     $UnfilledPositions = $CurrentGame.Periods | Select-Object -ExpandProperty Positions | Where-Object {
         $null -eq $_.StartingPlayer
     }
 
+    #TODO - build an abstraction to allow user to define positions.
     $playersWhoPreferGoalie = $AvailablePlayers | Where-Object {$_.PostionPrefRank -match 'goalie=1'}
+    $playersWhoPreferDefense = $AvailablePlayers | Where-Object {$_.PostionPrefRank -match 'defense=1'}
+    $playersWhoPreferMid = $AvailablePlayers | Where-Object {$_.PostionPrefRank -match 'mid=1'}
+    $playersWhoPreferForward = $AvailablePlayers | Where-Object {$_.PostionPrefRank -match 'forward=1'}
 
+    # can you give a player his first pick?
+    $UnfilledGoalie = $UnfilledPositions | Where-Object { $_.Name -eq 'Goalie' }
+    # can you give a player their second pick?
+    # so on
+    # so forth
+# When positions are full, fill the bench.
+# Check that a player hasn't been on the bench yet
     [Player]$bestFitPlayer = $playersWhoPreferGoalie | Select-Object -First 1
 
     $bestFitPlayer
