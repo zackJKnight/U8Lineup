@@ -1,0 +1,6 @@
+enum DecisionMethod {
+    EQUAL_PLAY_TIME 
+    EQUAL_POSITION_ROTATION 
+    PLAYER_PREFERENCE 
+    WIN_BY_SKILL
+}
