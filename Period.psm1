@@ -1,11 +1,11 @@
 class Period {
     [int]$Number
-    $DurationMinutes
-    $substitutions
-    $periodEvents
+    [int]$DurationMinutes
+    $PeriodEvents
     $Positions 
     
-    Period([int]$number) {
+    Period([int]$number, [int]$durationMinutes) {
         $this.Number = $number
+        $this.DurationMinutes = $durationMinutes
     }
 }

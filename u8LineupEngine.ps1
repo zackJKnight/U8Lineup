@@ -18,16 +18,14 @@ Using module ./DecisionMethod.psm1
 [CmdletBinding()]
 Param(
     $TotalPeriods = 4,
+    $PeriodDurationMinutes = 12,
     $TotalPositions = 7,
     $RefereeName = 'TestRef',
     $dataFilePath = './u8Lineup.data.json'
 )
 
-Function Find-Players {
-    #iterate the positions? 
-}
-
 Function Get-DecisionMethod ($decideBy) {
+    # TODO add selectable decision method
     switch ($decideBy) {
         default { [DecisionMethod]::PLAYER_PREFERENCE }
     }
@@ -50,10 +48,12 @@ Function Get-Player {
 
     #need to know open positions.
     #need to know filled positions and who fills them.
-
-    $UnfilledPositions = $CurrentGame.Periods | Select-Object -ExpandProperty Positions | Where-Object {
-        $null -eq $_.StartingPlayer
-    }
+    $CurrentGame.Periods | ForEach-Object {
+    $UnfilledPositions =  
+        $_ | Select-Object -ExpandProperty Positions | Where-Object {
+            $null -eq $_.StartingPlayer
+        }
+    
 
     #TODO - build an abstraction to allow user to define positions.
     $playersWhoPreferGoalie = $AvailablePlayers | Where-Object {$_.PostionPrefRank -match 'goalie=1'}
@@ -66,9 +66,12 @@ Function Get-Player {
     # can you give a player their second pick?
     # so on
     # so forth
-# When positions are full, fill the bench.
-# Check that a player hasn't been on the bench yet
-    [Player]$bestFitPlayer = $playersWhoPreferGoalie | Select-Object -First 1
+    # When positions are full, fill the bench.
+    # Check that a player hasn't been on the bench yet
+
+    }
+
+    [Player]$bestFitPlayer #= $playersWhoPreferGoalie | Select-Object -First 1
 
     $bestFitPlayer
 
@@ -92,8 +95,11 @@ $GameData.players | ForEach-Object {
     $positions.Add([Position]::new()) 
 }
 
+#TODO Set position names???
+
+
 1..$TotalPeriods | ForEach-Object {
-    $game.Periods.Add([Period]::new($_))
+    $game.Periods.Add([Period]::new($_, $PeriodDurationMinutes))
 }
 
 $game.Periods | ForEach-Object {
@@ -103,7 +109,7 @@ $game.Periods | ForEach-Object {
 $poZishes = $game.Periods | Select-Object -ExpandProperty Positions 
 
 $poZishes | ForEach-Object {
-         $_.StartingPlayer = (Get-Player -CurrentGame $game -AvailablePlayers $players)
- }
+    $_.StartingPlayer = (Get-Player -CurrentGame $game -AvailablePlayers $players)
+}
 
 $game
