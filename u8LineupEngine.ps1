@@ -28,30 +28,18 @@ Function Get-GameData {
 }
 
 Function New-PositionList {
+    Param(
+        $GameDataPositions
+    )
     [System.Collections.Generic.List[Position]]$positions = New-Object System.Collections.Generic.List[Position]
 
-    #Room for improvement. This is the most basic layout. We can introduce configurable positions later, but I want to work out how to fill a given set of positions.
-    $position = [Position]::new()
-    $position.Name = 'Goalie'         
-    $positions.Add($position)    
-    $position = [Position]::new()
-    $position.Name = 'Defense' 
-    $positions.Add($position)
-    $position = [Position]::new()
-    $position.Name = 'Defense' 
-    $positions.Add($position)
-    $position = [Position]::new()
-    $position.Name = 'Mid' 
-    $positions.Add($position)
-    $position = [Position]::new()
-    $position.Name = 'Mid' 
-    $positions.Add($position)
-    $position = [Position]::new()
-    $position.Name = 'Forward' 
-    $positions.Add($position)
-    $position = [Position]::new()
-    $position.Name = 'Forward' 
-    $positions.Add($position)
+    $GameDataPositions | ForEach-Object{
+        for ($i = 0; $i -lt $_.pitchCount; $i++) {
+            $position = [Position]::new()
+            $position.Name = $_.name         
+            $positions.Add($position)    
+        }
+    }
 
     $positions
 }
@@ -136,7 +124,7 @@ $GameData.players | ForEach-Object {
 }
 
 $game.Periods | ForEach-Object {
-    $_.Positions = New-PositionList
+    $_.Positions = New-PositionList $GameData.positions
 }
 
 $game.Periods | ForEach-Object {

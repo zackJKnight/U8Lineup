@@ -17,10 +17,6 @@ class Position {
         $this.Name = $name
     }
 
-    [void] SetStartingPlayer ([Player]$player) {
-        ($this.StartingPlayer).Add($player)
-    }
-
     [void] SubPlayer ([Player]$player) {
         ($this.SubbedPlayers).Add($player)
     }
