@@ -88,6 +88,19 @@ Function Set-StartingPlayer {
     # as more positions are filled, we'll need to know filled positions and who fills them.
         
     [Player[]]$playersWhoPreferCurrentPosition
+    [Player[]]$playersThatHaventPlayedYet 
+    $PlayersInPosition = $CurrentGame.Periods | Select-Object -ExpandProperty Positions | ForEach-Object {
+        if (($null -ne $_.StartingPlayer)) {
+            $_
+        }
+    }
+    
+    $playersThatHaventPlayedYet = $AvailablePlayers |
+        Where-Object {
+         $_ -notin $PlayersInPosition 
+    }
+            
+    $playersThatHaventPlayedYet
     # find preferred position and work our way to least preferred.
     # if no players prefer this position but the position is empty, pick a random player, until we can 
     # look at history of who got their top picks and who didn't. 
@@ -102,7 +115,7 @@ Function Set-StartingPlayer {
     DO {    
         $playersWhoPreferCurrentPosition = $AvailablePlayers | Where-Object {
             $_.PostionPrefRank -match "$($CurrentPosition.Name)=$($i)" -and
-           $_ -notin ($CurrentPeriod.Positions | Select-Object -ExpandProperty StartingPlayer)
+            $_ -notin ($CurrentPeriod.Positions | Select-Object -ExpandProperty StartingPlayer)
         }
         $i++
     } Until(($playersWhoPreferCurrentPosition -eq $true -or $playersWhoPreferCurrentPosition.Length -gt 0) -or $i -gt $TotalPositionsRanked)
@@ -150,8 +163,8 @@ $game.Periods | ForEach-Object {
         if (($null -eq $_.StartingPlayer) -and $($_.Name) -ne 'Bench') {
             # TODO Learn why your pipeline has an object array with an empty first index
             $StartingPlayer = Set-StartingPlayer -CurrentGame $game -AvailablePlayers $players -CurrentPosition $_ | Where-Object {$null -ne $_}
-            if($StartingPlayer){
-            $_.StartingPlayer = $StartingPlayer 
+            if ($StartingPlayer) {
+                $_.StartingPlayer = $StartingPlayer 
             }
         }
 
@@ -162,9 +175,9 @@ $game.Periods | ForEach-Object {
 
 $game.Periods | ForEach-Object {
     $periodNumber = $_.Number
- $_.Positions | ForEach-Object {
-     "Period: $($periodNumber) - Position: $($_.Name) - Player: $($_.StartingPlayer.FirstName)"
- }
- "================================================="
- [System.Environment]::NewLine
+    $_.Positions | ForEach-Object {
+        "Period: $($periodNumber) - Position: $($_.Name) - Player: $($_.StartingPlayer.FirstName)"
+    }
+    "================================================="
+    [System.Environment]::NewLine
 }
