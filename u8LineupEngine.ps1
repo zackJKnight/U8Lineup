@@ -22,7 +22,7 @@ Param(
     $TotalPositions = 7,
     $TotalPositionsRanked = 4,
     $RefereeName = 'TestRef',
-    $dataFilePath = './u8Lineup.data.json'
+    $DataFilePath = './u8Lineup.data.json'
 )
 
 Function Get-DecisionMethod ($decideBy) {
@@ -32,8 +32,7 @@ Function Get-DecisionMethod ($decideBy) {
     }
 }
 Function Get-GameData {
-    $gameData = Get-Content $dataFilePath | ConvertFrom-Json 
-    $gameData
+    Get-Content $DataFilePath | ConvertFrom-Json
 }
 
 Function New-PositionList {
@@ -76,16 +75,6 @@ Function Set-StartingPlayer {
     $CurrentPeriod = $CurrentGame.Periods | Where-Object {
         $CurrentPosition.Id -in ($_.Positions | Select-Object -ExpandProperty Id)
     }
-    
-    # Let's see what this looks like period by period. then make it smarter.
-    # Manually, I look at all the periods before I can complete the first period. If I don't know much about the players, I can draft the first period without much thought
-    # but the more I know, the more options I have. And as I learn more about the players, the decisions become easier. OH! when the decisions become
-    # too easy, it's time to shake it up to challenge the players. 
-    # I often try scenarios with all periods full and then (if filling lineup to win- which is secondary to player pref/skill needs) change names based on ability/endurance
-    
-    # need to know open positions- or at some point we will. perhaps not right now.
-    # To loop the periods or not to loop the periods... Keep track of a player's starting positions on the player?
-    # as more positions are filled, we'll need to know filled positions and who fills them.
         
     [Player[]]$playersWhoPreferCurrentPosition
     [Player[]]$playersThatHaventPlayedYet 
@@ -93,23 +82,24 @@ Function Set-StartingPlayer {
         if (($null -ne $_.StartingPlayer)) {
             $_
         }
-    }
+    }| Select-Object StartingPlayer
+
+    $PlayersInPositionLastPeriod = $CurrentGame.Periods | Select-Object -ExpandProperty Positions | Where-Object{$_.Number -eq ($CurrentPosition.Number - 1)}
+    ForEach-Object {
+        if (($null -ne $_.StartingPlayer)) {
+            $_
+        }
+    }| Select-Object -ExpandProperty StartingPlayer
     
     $playersThatHaventPlayedYet = $AvailablePlayers |
         Where-Object {
-         $_ -notin $PlayersInPosition 
+        $_ -notin ($PlayersInPosition | Select-Object -ExpandProperty StartingPlayer )
+    }
+
+    $playersComingOffBench = $AvailablePlayers | Where-Object {
+        $_ -notin $PlayersInPositionLastPeriod
     }
             
-    $playersThatHaventPlayedYet
-    # find preferred position and work our way to least preferred.
-    # if no players prefer this position but the position is empty, pick a random player, until we can 
-    # look at history of who got their top picks and who didn't. 
-    # then we can pick based on who last got what they wanted.
-    
-    # can you give a player their first pick?
-    # can you give a player their second pick?
-    # so on
-    # so forth
     $i = 1
 
     DO {    
@@ -120,16 +110,19 @@ Function Set-StartingPlayer {
         $i++
     } Until(($playersWhoPreferCurrentPosition -eq $true -or $playersWhoPreferCurrentPosition.Length -gt 0) -or $i -gt $TotalPositionsRanked)
 
-    # if player is not already starting this period, we can pick one randomly
-    # introduce best fit as this tool gains wisdom
-    # Need to determine if player started in this position in the game yet.
-
-    [Player]$GoodFitPlayer = $playersWhoPreferCurrentPosition | Get-Random -SetSeed 2 #this isn't good random. you've done it in the past. do it again.
+    [Player]$GoodFitPlayer = $playersWhoPreferCurrentPosition | Where-Object {$_ -in $playersComingOffBench} | Get-Random
+    
+    if($null -eq $GoodFitPlayer){
+    $GoodFitPlayer = $playersWhoPreferCurrentPosition |Get-Random -SetSeed 2 #this isn't good random. you've done it in the past. do it again.
+    }
+    #-and $GoodFitPlayer -in $playersThatHaventPlayedYet
 
     if ($null -ne $GoodFitPlayer) {
-        Write-Output $GoodFitPlayer
+        $GoodFitPlayer
     }
     else {
+        $GoodFitPlayer = $playersThatHaventPlayedYet | Get-Random
+        $GoodFitPlayer
         #throw "No Player Found to Fill Position: $($CurrentPosition.Name) in Period: $($CurrentPeriod.Number)"
     }
 }
@@ -158,7 +151,7 @@ $game.Periods | ForEach-Object {
     $PeriodPositions = $_ | Select-Object -ExpandProperty Positions 
 
     $PeriodPositions | ForEach-Object {
-        #TODO this is not what I want. Sometimes the starting player will be set, but I'll find a reason to change it as the positions fill in.
+        #TODO Sometimes the starting player will be set, but I'll find a reason to change it as the positions fill in.
             
         if (($null -eq $_.StartingPlayer) -and $($_.Name) -ne 'Bench') {
             # TODO Learn why your pipeline has an object array with an empty first index
@@ -167,9 +160,6 @@ $game.Periods | ForEach-Object {
                 $_.StartingPlayer = $StartingPlayer 
             }
         }
-
-        # When positions are full, fill the bench.
-        # Check that a player hasn't been on the bench yet
     }
 }
 
