@@ -14,7 +14,7 @@ Param(
     $TotalPositions = 7,
     $TotalPositionsRanked = 4,
     $RefereeName = 'TestRef',
-    $DataFilePath = './u8Lineup.data.json'
+    $DataFilePath = '../u8Lineup.data.json'
 )
 
 Function Get-DecisionMethod ($decideBy) {
@@ -143,4 +143,6 @@ $game.Periods | ForEach-Object {
     }
 }
 
-$game.WriteGame()
+$Lineup = $game.WriteGame();
+
+$Lineup
