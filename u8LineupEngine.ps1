@@ -5,7 +5,7 @@ Using module ./Position.psm1
 Using module ./Event.psm1
 Using module ./DecisionMethod.psm1
 
-# Zack Knight 2108 - U8 Soccer Lineup
+# Zack Knight 2108 - Youth Soccer Lineup
 
 # keeps track of positions played in game? no, but it can get a history from games it has played in, which stores that in the period
 # game keeps track of periods, periods keep track of positions.
@@ -100,17 +100,18 @@ Function Set-StartingPlayer {
     $i = 1
 
     DO {    
-        $playersWhoPreferCurrentPosition = $AvailablePlayers | Where-Object {$_.PostionPrefRank -match "$($CurrentPosition.Name)=$($i)"}
+        $playersWhoPreferCurrentPosition = $AvailablePlayers | Where-Object {
+            $_.PostionPrefRank -match "$($CurrentPosition.Name)=$($i)" -and
+           $_ -notin ($CurrentPeriod.Positions | Select-Object -ExpandProperty StartingPlayer)
+        }
         $i++
     } Until(($playersWhoPreferCurrentPosition -eq $true -or $playersWhoPreferCurrentPosition.Length -gt 0) -or $i -gt $TotalPositionsRanked)
 
     # if player is not already starting this period, we can pick one randomly
     # introduce best fit as this tool gains wisdom
-    [Player[]]$StartingThisPeriod = $CurrentPeriod.Positions | Select-Object -ExpandProperty StartingPlayer
+    # Need to determine if player started in this position in the game yet.
 
-    [Player]$GoodFitPlayer = $playersWhoPreferCurrentPosition | Where-Object {
-        $_ -notin $StartingThisPeriod
-    } | Get-Random 
+    [Player]$GoodFitPlayer = $playersWhoPreferCurrentPosition | Get-Random -SetSeed 2 #this isn't good random. you've done it in the past. do it again.
 
     if ($null -ne $GoodFitPlayer) {
         Write-Output $GoodFitPlayer
