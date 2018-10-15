@@ -52,33 +52,21 @@ Function Set-StartingPlayer {
         [Position]$CurrentPosition
     )
 
-    $CurrentPeriod = $CurrentGame.Periods | Where-Object {
-        $CurrentPosition.Id -in ($_.Positions | Select-Object -ExpandProperty Id)
-    }
+    [Period]$CurrentPeriod = $CurrentGame.GetPeriodByPositionId($CurrentPosition.Id);
         
     [Player[]]$playersWhoPreferCurrentPosition
-    [Player[]]$playersThatHaventPlayedYet 
-    $PlayersInPosition = $CurrentGame.Periods | Select-Object -ExpandProperty Positions | ForEach-Object {
-        if (($null -ne $_.StartingPlayer)) {
-            $_
-        }
-    }| Select-Object StartingPlayer
+    [Player[]]$playersThatHaventPlayedYet
 
-    $PlayersInPositionLastPeriod = $CurrentGame.Periods | Select-Object -ExpandProperty Positions | Where-Object{$_.Number -eq ($CurrentPosition.Number - 1)}
-    ForEach-Object {
-        if (($null -ne $_.StartingPlayer)) {
-            $_
-        }
-    }| Select-Object -ExpandProperty StartingPlayer
+    $PlayersInAnyPositionThisGame = $CurrentGame.GetPlayersThatAreInAPosition();
+
+    $PlayersInPositionLastPeriod = $CurrentGame.GetPlayersInPositionLastPeriod($CurrentPeriod.Number);
     
     $playersThatHaventPlayedYet = $AvailablePlayers |
         Where-Object {
-        $_ -notin ($PlayersInPosition | Select-Object -ExpandProperty StartingPlayer )
+        $_ -notin ($PlayersInAnyPositionThisGame | Select-Object -ExpandProperty StartingPlayer )
     }
 
-    $playersComingOffBench = $AvailablePlayers | Where-Object {
-        $_ -notin $PlayersInPositionLastPeriod
-    }
+    $playersComingOffBench = $CurrentGame.GetPlayersFromBenchLastPeriod($CurrentPeriod.Number);
             
     $i = 1
 
@@ -95,7 +83,6 @@ Function Set-StartingPlayer {
     if($null -eq $GoodFitPlayer){
     $GoodFitPlayer = $playersWhoPreferCurrentPosition |Get-Random -SetSeed 2 #this isn't good random. you've done it in the past. do it again.
     }
-    #-and $GoodFitPlayer -in $playersThatHaventPlayedYet
 
     if ($null -ne $GoodFitPlayer) {
         $GoodFitPlayer
@@ -103,7 +90,6 @@ Function Set-StartingPlayer {
     else {
         $GoodFitPlayer = $playersThatHaventPlayedYet | Get-Random
         $GoodFitPlayer
-        #throw "No Player Found to Fill Position: $($CurrentPosition.Name) in Period: $($CurrentPeriod.Number)"
     }
 }
 
@@ -133,7 +119,7 @@ $game.Periods | ForEach-Object {
     $PeriodPositions | ForEach-Object {
         #TODO Sometimes the starting player will be set, but I'll find a reason to change it as the positions fill in.
             
-        if (($null -eq $_.StartingPlayer) -and $($_.Name) -ne 'Bench') {
+        if (($null -eq $_.StartingPlayer)) { #-and $($_.Name) -ne 'Bench'
             # TODO Learn why your pipeline has an object array with an empty first index
             $StartingPlayer = Set-StartingPlayer -CurrentGame $game -AvailablePlayers $players -CurrentPosition $_ | Where-Object {$null -ne $_}
             if ($StartingPlayer) {
