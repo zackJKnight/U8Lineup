@@ -39,3 +39,13 @@ Determine if player started in this position in the game yet.
 When positions are full, fill the bench.
 
 Check that a player hasn't been on the bench yet
+
+Add ability for player to can get a history from games it has played in
+
+Game keeps track of periods, periods keep track of positions.
+
+Add Coach's rank for player ability in a position
+
+Add configurable selection - maximize rotation, equal play time, by player pref, to win
+
+Add ability to enter substitutions- How does a sub effect future selection of player that needed to come out?

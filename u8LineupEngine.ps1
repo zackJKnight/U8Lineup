@@ -7,14 +7,6 @@ Using module ./DecisionMethod.psm1
 
 # Zack Knight 2108 - Youth Soccer Lineup
 
-# keeps track of positions played in game? no, but it can get a history from games it has played in, which stores that in the period
-# game keeps track of periods, periods keep track of positions.
-# coach's rank for player ability in a position
-# configurable selection - maximize rotation, equal play time, by player pref, to win
-# does a sub penalize the player that needed to come out?
-# im starting to question whether I should pick the position for the player rather than the player for the position.
-# if you pick the position for the player, you end up having to iterate the players in some order, which will affect the assignment.
-
 [CmdletBinding()]
 Param(
     $TotalPeriods = 4,
