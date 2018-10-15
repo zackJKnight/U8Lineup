@@ -143,11 +143,4 @@ $game.Periods | ForEach-Object {
     }
 }
 
-$game.Periods | ForEach-Object {
-    $periodNumber = $_.Number
-    $_.Positions | ForEach-Object {
-        "Period: $($periodNumber) - Position: $($_.Name) - Player: $($_.StartingPlayer.FirstName)"
-    }
-    "================================================="
-    [System.Environment]::NewLine
-}
+$game.WriteGame()
