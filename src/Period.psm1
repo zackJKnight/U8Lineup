@@ -8,4 +8,8 @@ class Period {
         $this.Number = $number
         $this.DurationMinutes = $durationMinutes
     }
+
+    [System.Object[]]GetStartingPlayers() {
+        return $this.Positions | Select-Object -ExpandProperty StartingPlayer
+    }
 }

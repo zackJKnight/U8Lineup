@@ -57,31 +57,34 @@ Function Set-StartingPlayer {
     [Player[]]$playersWhoPreferCurrentPosition
     [Player[]]$playersThatHaventPlayedYet
 
+#You're doing this every position, but need only to do it once a period
+    $CurrentPeriodStartingPlayers = $CurrentPeriod.GetStartingPlayers();
     $PlayersInAnyPositionThisGame = $CurrentGame.GetPlayersThatAreInAPosition();
-
+#You're doing this every position, but need only to do it once a period
     $PlayersInPositionLastPeriod = $CurrentGame.GetPlayersInPositionLastPeriod($CurrentPeriod.Number);
-    
+#You're doing this every position, but need only to do it once a period    
     $playersThatHaventPlayedYet = $AvailablePlayers |
         Where-Object {
         $_ -notin ($PlayersInAnyPositionThisGame | Select-Object -ExpandProperty StartingPlayer )
     }
-
+#You're doing this every position, but need only to do it once a period
     $playersComingOffBench = $CurrentGame.GetPlayersFromBenchLastPeriod($CurrentPeriod.Number);
-            
+    #need to place our bench players first            
+    $CurrentPlayerList = $AvailablePlayers # set this up to pass in bench players
     $i = 1
 
     DO {    
-        $playersWhoPreferCurrentPosition = $AvailablePlayers | Where-Object {
+        $playersWhoPreferCurrentPosition = $CurrentPlayerList | Where-Object {
             $_.PostionPrefRank -match "$($CurrentPosition.Name)=$($i)" -and
-            $_ -notin ($CurrentPeriod.Positions | Select-Object -ExpandProperty StartingPlayer)
+            $_ -notin $CurrentPeriodStartingPlayers
         }
         $i++
     } Until(($playersWhoPreferCurrentPosition -eq $true -or $playersWhoPreferCurrentPosition.Length -gt 0) -or $i -gt $TotalPositionsRanked)
-
+#bench players may not prefer the first three positions, which leaves them at the end of the line.
     [Player]$GoodFitPlayer = $playersWhoPreferCurrentPosition | Where-Object {$_ -in $playersComingOffBench} | Get-Random
     
     if($null -eq $GoodFitPlayer){
-    $GoodFitPlayer = $playersWhoPreferCurrentPosition |Get-Random -SetSeed 2 #this isn't good random. you've done it in the past. do it again.
+    $GoodFitPlayer = $playersWhoPreferCurrentPosition | Get-Random
     }
 
     if ($null -ne $GoodFitPlayer) {
