@@ -12,4 +12,10 @@ class Period {
     [System.Object[]]GetStartingPlayers() {
         return $this.Positions | Select-Object -ExpandProperty StartingPlayer
     }
+
+    [bool]PositionsFilled() {
+        $StartingPlayers = $this.Positions | Where-Object {$_.Name -ne 'Bench'} | Select-Object -ExpandProperty StartingPlayer
+        #TODO - always true? verify
+        return $null -notin $StartingPlayers
+    }
 }

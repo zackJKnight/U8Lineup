@@ -68,23 +68,24 @@ Function New-PositionList {
 Function Set-StartingPlayer {
     [OutputType([Player])]
     Param(
-        [Game]$CurrentGame,
-        [System.Collections.Generic.List[Player]]$AvailablePlayers,
-        [Position]$CurrentPosition
+        [Player[]]$PlayersWhoPreferCurrentPosition,
+        [Position]$CurrentPosition,
+        [Player[]]$PlayersComingOffBench,
+        [Player[]]$PlayersThatHaventPlayedYet
     )
     
     #bench players may not prefer the first three positions, which leaves them at the end of the line.
-    [Player]$GoodFitPlayer = $playersWhoPreferCurrentPosition | Where-Object {$_ -in $playersComingOffBench} | Get-Random
+    [Player]$GoodFitPlayer = $PlayersWhoPreferCurrentPosition | Where-Object {$_ -in $PlayersComingOffBench} | Get-Random
     
     if($null -eq $GoodFitPlayer){
-    $GoodFitPlayer = $playersWhoPreferCurrentPosition | Get-Random
+    $GoodFitPlayer = $PlayersWhoPreferCurrentPosition | Get-Random
     }
 
     if ($null -ne $GoodFitPlayer) {
         $GoodFitPlayer
     }
     else {
-        $GoodFitPlayer = $playersThatHaventPlayedYet | Get-Random
+        $GoodFitPlayer = $PlayersThatHaventPlayedYet | Get-Random
         $GoodFitPlayer
     }
 }
@@ -110,14 +111,14 @@ $game.Periods | ForEach-Object {
 }
 
 $game.Periods | ForEach-Object {
-
+    $CurrentPeriod = $_
     [Player[]]$playersThatHaventPlayedYet
 
     $CurrentPeriodStartingPlayers = $_.GetStartingPlayers();
     $PlayersInAnyPositionThisGame = $game.GetPlayersThatAreInAPosition();
     $PlayersInPositionLastPeriod = $game.GetPlayersInPositionLastPeriod($_.Number);
     $PlayersComingOffBench = $game.GetPlayersFromBenchLastPeriod($_.Number);
-    $playersThatHaventPlayedYet = $AvailablePlayers |
+    $playersThatHaventPlayedYet = $players |
         Where-Object {
         $_ -notin ($PlayersInAnyPositionThisGame | Select-Object -ExpandProperty StartingPlayer )
     }
@@ -128,20 +129,20 @@ $game.Periods | ForEach-Object {
         #TODO Sometimes the starting player will be set, but I'll find a reason to change it as the positions fill in.
         #need to place our bench players first            
 
-        $AvailablePlayersWhoPreferCurrentPosition = Get-PlayersThatPreferPosition -CurrentPlayerList $players -CurrentPositionName $_.Name -CurrentPeriodStartingPlayers $CurrentPeriodStartingPlayers
+        $AvailablePlayersWhoPreferCurrentPosition = Get-PlayersThatPreferPosition -CurrentPlayerList $players -CurrentPositionName $_.Name -CurrentPeriodStartingPlayers $CurrentPeriodStartingPlayers | Where-Object {$null -ne $_}
 
-        $PlayersFromBenchWhoPreferCurrentPosition =  Get-PlayersThatPreferPosition -CurrentPlayerList $PlayersComingOffBench -CurrentPositionName $_.Name -CurrentPeriodStartingPlayers $CurrentPeriodStartingPlayers
-                
-        if (($null -eq $_.StartingPlayer)) {
+        $PlayersFromBenchWhoPreferCurrentPosition =  Get-PlayersThatPreferPosition -CurrentPlayerList $PlayersComingOffBench -CurrentPositionName $_.Name -CurrentPeriodStartingPlayers $CurrentPeriodStartingPlayers | Where-Object {$null -ne $_}
+        if($null -eq $AvailablePlayersWhoPreferCurrentPosition -and $CurrentPeriod.PositionsFilled() ) {
+            #positions are full. bench the rest
+            'hello bench'
+        }        
+        elseif (($null -eq $_.StartingPlayer)) {
             # TODO Learn why your pipeline has an object array with an empty first index
-            $StartingPlayer = Set-StartingPlayer -CurrentGame $game -AvailablePlayers $players -CurrentPosition $_ | Where-Object {$null -ne $_}
+            $StartingPlayer = Set-StartingPlayer -CurrentPosition ($_ | Where-Object {$null -ne $_}) -PlayersWhoPreferCurrentPosition $AvailablePlayersWhoPreferCurrentPosition -PlayersComingOffBench $PlayersComingOffBench -PlayersThatHaventPlayedYet $playersThatHaventPlayedYet
             if ($StartingPlayer) {
                 $_.StartingPlayer = $StartingPlayer 
             }
         }
     }
 }
-
-$Lineup = $game.WriteGame();
-
-$Lineup
+$game.WriteGame();
