@@ -18,14 +18,19 @@ class Game {
     }
 
     [System.Object[]]GetPlayersFromBenchLastPeriod($CurrentPeriodNumber) {
-        return $this.Periods | Select-Object -ExpandProperty Positions | Where-Object {
+        if($CurrentPeriodNumber -gt 1) {
+        return $this.Periods | Where-Object {
             $_.Number -eq ($CurrentPeriodNumber - 1)
-        }
+        } | Select-Object -ExpandProperty Positions |
         ForEach-Object {
             if (($null -ne $_.StartingPlayer) -and $_.Name -eq 'Bench') {
                 $_
             }
         }| Select-Object -ExpandProperty StartingPlayer
+    }
+    else {
+        return $null
+    }
     }
 
     [System.Object[]]GetPlayersInPositionLastPeriod($CurrentPeriodNumber) {

@@ -29,10 +29,10 @@ Function Get-GameData {
 
 Function Get-PlayersThatPreferPosition {
     Param(
-    [int]$i = 1,
-    $CurrentPositionName,
-    $CurrentPlayerList,
-    $CurrentPeriodStartingPlayers
+        [int]$i = 1,
+        $CurrentPositionName,
+        $CurrentPlayerList,
+        $CurrentPeriodStartingPlayers
     )
 
     [Player[]]$playersWhoPreferCurrentPosition
@@ -54,7 +54,7 @@ Function New-PositionList {
     )
     [System.Collections.Generic.List[Position]]$positions = New-Object System.Collections.Generic.List[Position]
 
-    $GameDataPositions | ForEach-Object{
+    $GameDataPositions | ForEach-Object {
         for ($i = 0; $i -lt $_.pitchCount; $i++) {
             $position = [Position]::new()
             $position.Name = $_.name         
@@ -75,10 +75,12 @@ Function Set-StartingPlayer {
     )
     
     #bench players may not prefer the first three positions, which leaves them at the end of the line.
-    [Player]$GoodFitPlayer = $PlayersWhoPreferCurrentPosition | Where-Object {$_ -in $PlayersComingOffBench} | Get-Random
-    
-    if($null -eq $GoodFitPlayer){
-    $GoodFitPlayer = $PlayersWhoPreferCurrentPosition | Get-Random
+    if ($null -ne $PlayersComingOffBench) {
+        $GoodFitPlayer = $PlayersWhoPreferCurrentPosition | Where-Object {$_ -in $PlayersComingOffBench} | Get-Random
+    }
+
+    if ($null -eq $GoodFitPlayer) {
+        $GoodFitPlayer = $PlayersWhoPreferCurrentPosition | Get-Random
     }
 
     if ($null -ne $GoodFitPlayer) {
@@ -114,10 +116,10 @@ $game.Periods | ForEach-Object {
     $CurrentPeriod = $_
     [Player[]]$playersThatHaventPlayedYet
 
-    $CurrentPeriodStartingPlayers = $_.GetStartingPlayers();
     $PlayersInAnyPositionThisGame = $game.GetPlayersThatAreInAPosition();
-    $PlayersInPositionLastPeriod = $game.GetPlayersInPositionLastPeriod($_.Number);
-    $PlayersComingOffBench = $game.GetPlayersFromBenchLastPeriod($_.Number);
+    # use this to rotate players across positions throughout the game
+    $PlayersInPositionLastPeriod = $game.GetPlayersInPositionLastPeriod($CurrentPeriod.Number);
+    $PlayersComingOffBench = $game.GetPlayersFromBenchLastPeriod($CurrentPeriod.Number);
     $playersThatHaventPlayedYet = $players |
         Where-Object {
         $_ -notin ($PlayersInAnyPositionThisGame | Select-Object -ExpandProperty StartingPlayer )
@@ -128,13 +130,18 @@ $game.Periods | ForEach-Object {
     $PeriodPositions | ForEach-Object {
         #TODO Sometimes the starting player will be set, but I'll find a reason to change it as the positions fill in.
         #need to place our bench players first            
-
+        $CurrentPeriodStartingPlayers = $CurrentPeriod.GetStartingPlayers();
+        $CurrentPeriodBenchPlayers = $CurrentPeriod.GetBenchPlayers();
         $AvailablePlayersWhoPreferCurrentPosition = Get-PlayersThatPreferPosition -CurrentPlayerList $players -CurrentPositionName $_.Name -CurrentPeriodStartingPlayers $CurrentPeriodStartingPlayers | Where-Object {$null -ne $_}
 
-        $PlayersFromBenchWhoPreferCurrentPosition =  Get-PlayersThatPreferPosition -CurrentPlayerList $PlayersComingOffBench -CurrentPositionName $_.Name -CurrentPeriodStartingPlayers $CurrentPeriodStartingPlayers | Where-Object {$null -ne $_}
-        if($null -eq $AvailablePlayersWhoPreferCurrentPosition -and $CurrentPeriod.PositionsFilled() ) {
+        $PlayersFromBenchWhoPreferCurrentPosition = Get-PlayersThatPreferPosition -CurrentPlayerList $PlayersComingOffBench -CurrentPositionName $_.Name -CurrentPeriodStartingPlayers $CurrentPeriodStartingPlayers | Where-Object {$null -ne $_}
+        
+        if ($null -eq $AvailablePlayersWhoPreferCurrentPosition -and $CurrentPeriod.PositionsFilled() ) {
             #positions are full. bench the rest
-            'hello bench'
+            $BenchPlayer = $players | Where-Object {
+                $_ -notin $CurrentPeriodStartingPlayers -and $_ -notin $CurrentPeriodBenchPlayers
+            } | Select-Object -First 1
+            $_.StartingPlayer = $BenchPlayer 
         }        
         elseif (($null -eq $_.StartingPlayer)) {
             # TODO Learn why your pipeline has an object array with an empty first index

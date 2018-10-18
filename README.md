@@ -6,9 +6,9 @@ Maybe it will become a tool that I can share with other parents that (like me) d
 
 ## Notes
 
-Manually, I look at all the periods before I can complete the first period.
+Manually, I look at all the periods before I can complete the first period - I sometimes pencil in names just to see where it will go.
 
-If I don't know much about the players, I can draft the first period without much thought, but the more I know, the more options I have.
+If I don't know much about the players, I can draft the first period without much thought. The more I know, the more options I have; the slower it goes overall.
 
 As I learn more about the players, the decisions become easier. When the decisions become too easy, it's time to shake it up to challenge the players.
 
@@ -16,7 +16,7 @@ I often try scenarios with all periods full and then (if filling lineup to win- 
 
 Need to know open positions- or at some point we will. perhaps not right now.
 
-To loop the periods or not to loop the periods...
+To loop the periods or not to loop the periods...For the first try, I'll loop them. When the decisions are programmed, perhaps we can fill across the game.
 
 Find preferred position and work our way to least preferred.
 
@@ -26,7 +26,7 @@ Can you give a player their second pick?
 
 So on,so forth
 
-If no players prefer this position but the position is empty, pick a random player, until we can look at history of who got their top picks and who didn't.
+If no players prefer this position but the position is empty, pick a random player, until we can look at history of who got their top picks and who didn't. And who has the most play time.
 
 Add the ability to pick a player for a position based on who last got what they wanted.
 

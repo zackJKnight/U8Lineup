@@ -9,6 +9,10 @@ class Period {
         $this.DurationMinutes = $durationMinutes
     }
 
+    [System.Object[]]GetBenchPlayers() {
+        return $this.Positions | Where-Object {$_.Name -eq 'Bench'} | Select-Object -ExpandProperty StartingPlayer
+    }
+
     [System.Object[]]GetStartingPlayers() {
         return $this.Positions | Select-Object -ExpandProperty StartingPlayer
     }
