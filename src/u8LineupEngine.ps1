@@ -5,7 +5,7 @@ Using module ./Position.psm1
 Using module ./Event.psm1
 Using module ./DecisionMethod.psm1
 
-# Zack Knight 2108 - Youth Soccer Lineup
+# Zack Knight 2018 - Youth Soccer Lineup
 
 [CmdletBinding()]
 Param(
