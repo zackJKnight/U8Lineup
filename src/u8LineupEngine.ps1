@@ -76,7 +76,7 @@ Function Set-StartingPlayer {
     
     #bench players may not prefer the first three positions, which leaves them at the end of the line.
     if ($null -ne $PlayersComingOffBench) {
-        $GoodFitPlayer = $PlayersWhoPreferCurrentPosition | Where-Object {$_ -in $PlayersComingOffBench} | Get-Random
+        $GoodFitPlayer = $PlayersComingOffBench | Get-Random
     }
 
     if ($null -eq $GoodFitPlayer) {
@@ -118,9 +118,9 @@ $game.Periods | ForEach-Object {
 
     $PlayersInAnyPositionThisGame = $game.GetPlayersThatAreInAPosition();
     # use this to rotate players across positions throughout the game
-    $PlayersInPositionLastPeriod = $game.GetPlayersInPositionLastPeriod($CurrentPeriod.Number);
+    #$PlayersInPositionLastPeriod = $game.GetPlayersInPositionLastPeriod($CurrentPeriod.Number);
     $PlayersComingOffBench = $game.GetPlayersFromBenchLastPeriod($CurrentPeriod.Number);
-    $playersThatHaventPlayedYet = $players |
+    $playersThatHaventPlayedYet = $players |#inst showing bench players
         Where-Object {
         $_ -notin ($PlayersInAnyPositionThisGame | Select-Object -ExpandProperty StartingPlayer )
     }
@@ -136,7 +136,7 @@ $game.Periods | ForEach-Object {
 
         $PlayersFromBenchWhoPreferCurrentPosition = Get-PlayersThatPreferPosition -CurrentPlayerList $PlayersComingOffBench -CurrentPositionName $_.Name -CurrentPeriodStartingPlayers $CurrentPeriodStartingPlayers | Where-Object {$null -ne $_}
         
-        if ($null -eq $AvailablePlayersWhoPreferCurrentPosition -and $CurrentPeriod.PositionsFilled() ) {
+        if ($CurrentPeriod.PositionsFilled() -eq $true) {
             #positions are full. bench the rest
             $BenchPlayer = $players | Where-Object {
                 $_ -notin $CurrentPeriodStartingPlayers -and $_ -notin $CurrentPeriodBenchPlayers
@@ -145,7 +145,7 @@ $game.Periods | ForEach-Object {
         }        
         elseif (($null -eq $_.StartingPlayer)) {
             # TODO Learn why your pipeline has an object array with an empty first index
-            $StartingPlayer = Set-StartingPlayer -CurrentPosition ($_ | Where-Object {$null -ne $_}) -PlayersWhoPreferCurrentPosition $AvailablePlayersWhoPreferCurrentPosition -PlayersComingOffBench $PlayersComingOffBench -PlayersThatHaventPlayedYet $playersThatHaventPlayedYet
+            $StartingPlayer = Set-StartingPlayer -CurrentPosition ($_ | Where-Object {$null -ne $_}) -PlayersWhoPreferCurrentPosition $AvailablePlayersWhoPreferCurrentPosition -PlayersComingOffBench $PlayersFromBenchWhoPreferCurrentPosition -PlayersThatHaventPlayedYet $playersThatHaventPlayedYet
             if ($StartingPlayer) {
                 $_.StartingPlayer = $StartingPlayer 
             }

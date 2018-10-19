@@ -18,8 +18,8 @@ class Period {
     }
 
     [bool]PositionsFilled() {
-        $StartingPlayers = $this.Positions | Where-Object {$_.Name -ne 'Bench'} | Select-Object -ExpandProperty StartingPlayer
-        #TODO - always true? verify
-        return $null -notin $StartingPlayers
+        $OpenPositions = $this.Positions | Where-Object {$_.Name -ne 'Bench' -and $_.StartingPlayer -eq $null} 
+        
+        return ($OpenPositions.Count -eq 0)
     }
 }
