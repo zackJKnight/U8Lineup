@@ -106,10 +106,9 @@ $game.Periods | ForEach-Object {
 }
 
 $Team.Games += $game;
+$game.WriteGame();
 $Team
 
 }
 
-#YouthSoccerLineup
-
-#$game.WriteGame();
+YouthSoccerLineup
