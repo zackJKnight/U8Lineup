@@ -98,5 +98,11 @@ $game.Periods | ForEach-Object {
         }
     }
 }
-$game.WriteGame();
+
+$game
+
 }
+
+YouthSoccerLineup
+
+#$game.WriteGame();
