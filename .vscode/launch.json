@@ -7,6 +7,14 @@
         {
             "type": "PowerShell",
             "request": "launch",
+            "name": "PowerShell Pester Tests",
+            "script": "Invoke-Pester",
+            "args": [],
+            "cwd": "${workspaceFolder}/src"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
             "name": "PowerShell Launch Current File",
             "script": "${file}",
             "args": [],

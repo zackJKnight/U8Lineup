@@ -4,6 +4,7 @@ Using module ./Player.psm1
 Using module ./Position.psm1
 Using module ./Event.psm1
 Using module ./DecisionMethod.psm1
+Using module ./Team.psm1
 . ./Get-PlayersThatPreferPosition
 . ./Set-StartingPlayer
 . ./Get-GameData
@@ -13,6 +14,7 @@ Using module ./DecisionMethod.psm1
 function YouthSoccerLineup {
 [CmdletBinding()]
 Param(
+    $TeamName = 'The Green Machine',
     $TotalPeriods = 4,
     $PeriodDurationMinutes = 12,
     $TotalPositions = 7,
@@ -20,6 +22,8 @@ Param(
     $RefereeName = 'TestRef',
     $DataFilePath = '../u8Lineup.data.json'
 )
+
+$Team = [Team]::new($TeamName)
 
 $GameData = Get-GameData
 
@@ -99,10 +103,11 @@ $game.Periods | ForEach-Object {
     }
 }
 
-$game
+$Team.Games += $game;
+$Team
 
 }
 
-YouthSoccerLineup
+#YouthSoccerLineup
 
 #$game.WriteGame();
