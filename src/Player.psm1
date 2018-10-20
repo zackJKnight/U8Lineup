@@ -1,10 +1,10 @@
 class Player {
     $FirstName
     $LastName
-    $PostionPrefRank
+    $PositionPrefRank
     Player([string]$firstName, [string]$lastName, $positionPreference) {
         $this.FirstName = $firstName
         $this.LastName = $lastName
-        $this.PostionPrefRank = $positionPreference
+        $this.PositionPrefRank = $positionPreference
     }
 }

@@ -25,7 +25,7 @@ Param(
 
 $Team = [Team]::new($TeamName)
 
-$GameData = Get-GameData
+$GameData = Get-GameData $DataFilePath
 
 [Game]$game = [Game]::new((Get-Date))
 
@@ -36,6 +36,8 @@ $game.Ref = $RefereeName
 $GameData.players | ForEach-Object {
     $players.Add([Player]::new($_.firstName, $_.lastName, $_.playerPositionPreference))
 }
+
+$Team.Players += $players;
 
 1..$TotalPeriods | ForEach-Object {
     $game.Periods.Add([Period]::new($_, $PeriodDurationMinutes))

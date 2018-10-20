@@ -20,7 +20,7 @@ Describe "YouthSoccerLineup" {
             | Should -BeLessThan 3
     }
 
-    It "Plays each player in their top ranked position at least once" {
+    It "Prefers a player's favorite position" {
         $playersFavoritePosition = $result.GetPlayersWithFavoritePosition
         $result.Games[0].Periods | Select-Object -expandproperty Positions | Where-Object {
             $_.Name -notmatch 'Bench'

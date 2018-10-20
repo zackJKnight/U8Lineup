@@ -3,176 +3,105 @@
             "firstName": "Speeve",
             "lastName": "Spevenson",
             "playerPositionPreference": [{
-                    "goalie": "1"
-                },
-                {
-                    "defense": "2"
-                },
-                {
-                    "mid": "3"
-                },
-                {
-                    "forward": "4"
-                }
-            ]
+                "goalie": "1",
+                "defense": "2",
+                "mid": "3",
+                "forward": "4"
+            }]
         },
         {
             "firstName": "Gurtle",
             "lastName": "Holtinemen",
             "playerPositionPreference": [{
-                    "goalie": "2"
-                },
-                {
-                    "defense": "4"
-                },
-                {
-                    "mid": "1"
-                },
-                {
-                    "forward": "3"
-                }
-            ]
+                "goalie": "2",
+                "defense": "4",
+                "mid": "1",
+                "forward": "3"
+            }]
         },
         {
             "firstName": "Miff",
             "lastName": "Pough",
             "playerPositionPreference": [{
-                    "goalie": "3"
-                },
-                {
-                    "defense": "1"
-                },
-                {
-                    "mid": "4"
-                },
-                {
-                    "forward": "2"
-                }
-            ]
+                "goalie": "3",
+                "defense": "1",
+                "mid": "4",
+                "forward": "2"
+            }]
         },
         {
             "firstName": "Sternly",
             "lastName": "Shiffman",
             "playerPositionPreference": [{
-                    "goalie": "2"
-                },
-                {
-                    "defense": "1"
-                },
-                {
-                    "mid": "3"
-                },
-                {
-                    "forward": "4"
-                }
-            ]
+                "goalie": "2",
+                "defense": "1",
+                "mid": "3",
+                "forward": "4"
+            }]
         },
         {
             "firstName": "Charber",
             "lastName": "Tonts",
             "playerPositionPreference": [{
-                    "goalie": "4"
-                },
-                {
-                    "defense": "3"
-                },
-                {
-                    "mid": "2"
-                },
-                {
-                    "forward": "1"
-                }
-            ]
+                "goalie": "4",
+                "defense": "3",
+                "mid": "2",
+                "forward": "1"
+            }]
         },
         {
             "firstName": "Knahnk",
             "lastName": "Rearj",
             "playerPositionPreference": [{
-                    "goalie": "3"
-                },
-                {
-                    "defense": "1"
-                },
-                {
-                    "mid": "2"
-                },
-                {
-                    "forward": "4"
-                }
-            ]
+                "goalie": "3",
+                "defense": "1",
+                "mid": "2",
+                "forward": "4"
+            }]
         },
         {
             "firstName": "Ferbric",
             "lastName": "Dahlop",
             "playerPositionPreference": [{
-                    "goalie": "2"
-                },
-                {
-                    "defense": "1"
-                },
-                {
-                    "mid": "3"
-                },
-                {
-                    "forward": "4"
-                }
-            ]
+                "goalie": "2",
+                "defense": "1",
+                "mid": "3",
+                "forward": "4"
+            }]
         },
         {
             "firstName": "Truke",
             "lastName": "Chulious",
             "playerPositionPreference": [{
-                    "goalie": "1"
-                },
-                {
-                    "defense": "2"
-                },
-                {
-                    "mid": "3"
-                },
-                {
-                    "forward": "4"
-                }
-            ]
+                "goalie": "1",
+                "defense": "2",
+                "mid": "3",
+                "forward": "4"
+            }]
         },
         {
             "firstName": "Zibren",
             "lastName": "Viftesk",
             "playerPositionPreference": [{
-                    "goalie": "2"
-                },
-                {
-                    "defense": "4"
-                },
-                {
-                    "mid": "3"
-                },
-                {
-                    "forward": "1"
-                }
-            ]
+                "goalie": "2",
+                "defense": "4",
+                "mid": "3",
+                "forward": "1"
+            }]
         },
         {
             "firstName": "Bub",
             "lastName": "Morester",
             "playerPositionPreference": [{
-                    "goalie": "3"
-                },
-                {
-                    "defense": "1"
-                },
-                {
-                    "mid": "4"
-                },
-                {
-                    "forward": "2"
-                }
-            ]
+                "goalie": "3",
+                "defense": "1",
+                "mid": "4",
+                "forward": "2"
+            }]
         }
 
     ],
-    "positions":[
-        {
+    "positions": [{
             "name": "Goalie",
             "pitchCount": "1"
         },

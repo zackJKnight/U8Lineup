@@ -49,3 +49,5 @@ Add Coach's rank for player ability in a position
 Add configurable selection - maximize rotation, equal play time, by player pref, to win
 
 Add ability to enter substitutions- How does a sub effect future selection of player that needed to come out?
+
+After looking at the positions inside of a period and the periods inside of a game, I realize that I might make a better decision just by looking at the player preferences. In my professional work, I have come to the thought (thoughts that I can have only due to the work of my colleagues building a model and the opportunity to hear our users talk about their specific domain) that we must identify the rarest resource and place all other resources in flux around those immovable points in time at which the resource is available. The rarest resource in the first scenario is a player's preference.
