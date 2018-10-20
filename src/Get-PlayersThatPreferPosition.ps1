@@ -7,14 +7,15 @@ Function Get-PlayersThatPreferPosition {
     )
 
     [Player[]]$playersWhoPreferCurrentPosition
-    
+    if($null -ne $CurrentPlayerList -and $CurrentPositionName -ne 'Bench') {
     DO {    
         $playersWhoPreferCurrentPosition = $CurrentPlayerList | Where-Object {
-            $_.PostionPrefRank -match "$($CurrentPositionName)=$($i)" -and
+            $null -ne $_.PositionPrefRank -and `
+            ($_.PositionPrefRank | select -ExpandProperty $CurrentPositionName.ToLower()) -eq $i -and `
             $_ -notin $CurrentPeriodStartingPlayers
         }
         $i++
     } Until(($playersWhoPreferCurrentPosition -eq $true -or $playersWhoPreferCurrentPosition.Length -gt 0) -or $i -gt $TotalPositionsRanked)
-
+    }
     $playersWhoPreferCurrentPosition
 }
