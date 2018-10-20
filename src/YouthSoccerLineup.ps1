@@ -4,9 +4,13 @@ Using module ./Player.psm1
 Using module ./Position.psm1
 Using module ./Event.psm1
 Using module ./DecisionMethod.psm1
+. ./Get-PlayersThatPreferPosition
+. ./Set-StartingPlayer
+. ./Get-GameData
+. ./New-PositionList
 
 # Zack Knight 2018 - Youth Soccer Lineup
-
+function YouthSoccerLineup {
 [CmdletBinding()]
 Param(
     $TotalPeriods = 4,
@@ -16,81 +20,6 @@ Param(
     $RefereeName = 'TestRef',
     $DataFilePath = '../u8Lineup.data.json'
 )
-
-Function Get-DecisionMethod ($decideBy) {
-    # TODO add selectable decision method
-    switch ($decideBy) {
-        default { [DecisionMethod]::PLAYER_PREFERENCE }
-    }
-}
-Function Get-GameData {
-    Get-Content $DataFilePath | ConvertFrom-Json
-}
-
-Function Get-PlayersThatPreferPosition {
-    Param(
-        [int]$i = 1,
-        $CurrentPositionName,
-        $CurrentPlayerList,
-        $CurrentPeriodStartingPlayers
-    )
-
-    [Player[]]$playersWhoPreferCurrentPosition
-    
-    DO {    
-        $playersWhoPreferCurrentPosition = $CurrentPlayerList | Where-Object {
-            $_.PostionPrefRank -match "$($CurrentPositionName)=$($i)" -and
-            $_ -notin $CurrentPeriodStartingPlayers
-        }
-        $i++
-    } Until(($playersWhoPreferCurrentPosition -eq $true -or $playersWhoPreferCurrentPosition.Length -gt 0) -or $i -gt $TotalPositionsRanked)
-
-    $playersWhoPreferCurrentPosition
-}
-
-Function New-PositionList {
-    Param(
-        $GameDataPositions
-    )
-    [System.Collections.Generic.List[Position]]$positions = New-Object System.Collections.Generic.List[Position]
-
-    $GameDataPositions | ForEach-Object {
-        for ($i = 0; $i -lt $_.pitchCount; $i++) {
-            $position = [Position]::new()
-            $position.Name = $_.name         
-            $positions.Add($position)    
-        }
-    }
-
-    $positions
-}
-
-Function Set-StartingPlayer {
-    [OutputType([Player])]
-    Param(
-        [Player[]]$PlayersWhoPreferCurrentPosition,
-        [Position]$CurrentPosition,
-        [Player[]]$PlayersComingOffBench,
-        [Player[]]$PlayersThatHaventPlayedYet
-    )
-    
-    #bench players may not prefer the first three positions, which leaves them at the end of the line.
-    if ($null -ne $PlayersComingOffBench) {
-        $GoodFitPlayer = $PlayersComingOffBench | Get-Random
-    }
-
-    if ($null -eq $GoodFitPlayer) {
-        $GoodFitPlayer = $PlayersWhoPreferCurrentPosition | Get-Random
-    }
-
-    if ($null -ne $GoodFitPlayer) {
-        $GoodFitPlayer
-    }
-    else {
-        $GoodFitPlayer = $PlayersThatHaventPlayedYet | Get-Random
-        $GoodFitPlayer
-    }
-}
 
 $GameData = Get-GameData
 
@@ -120,12 +49,27 @@ $game.Periods | ForEach-Object {
     # use this to rotate players across positions throughout the game
     #$PlayersInPositionLastPeriod = $game.GetPlayersInPositionLastPeriod($CurrentPeriod.Number);
     $PlayersComingOffBench = $game.GetPlayersFromBenchLastPeriod($CurrentPeriod.Number);
+
     $playersThatHaventPlayedYet = $players |#inst showing bench players
         Where-Object {
         $_ -notin ($PlayersInAnyPositionThisGame | Select-Object -ExpandProperty StartingPlayer )
     }
     
     $PeriodPositions = $_ | Select-Object -ExpandProperty Positions 
+    # Does a player coming off bench prefer an open position? give them first dibs.
+    
+    if ($PlayersComingOffBench) {
+        $PlayersComingOffBench | ForEach-Object {
+            $currentPlayer = $_; 
+            $PeriodPositions | Where-Object {
+                $currentPlayer.PostionPrefRank -match "$($_.Name)=1"
+            }| ForEach-Object {
+                if ($currentPlayer -notin $CurrentPeriod.GetStartingPlayers() ) {
+                    $_.StartingPlayer = $currentPlayer
+                }
+            }
+        }
+    }
 
     $PeriodPositions | ForEach-Object {
         #TODO Sometimes the starting player will be set, but I'll find a reason to change it as the positions fill in.
@@ -141,7 +85,9 @@ $game.Periods | ForEach-Object {
             $BenchPlayer = $players | Where-Object {
                 $_ -notin $CurrentPeriodStartingPlayers -and $_ -notin $CurrentPeriodBenchPlayers
             } | Select-Object -First 1
+            if($null -eq $_.StartingPlayer) {
             $_.StartingPlayer = $BenchPlayer 
+            }
         }        
         elseif (($null -eq $_.StartingPlayer)) {
             # TODO Learn why your pipeline has an object array with an empty first index
@@ -153,3 +99,4 @@ $game.Periods | ForEach-Object {
     }
 }
 $game.WriteGame();
+}
