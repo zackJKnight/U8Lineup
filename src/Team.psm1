@@ -13,10 +13,10 @@ class Team {
 
     [System.Object[]]GetPlayersWithFavoritePosition() {
         $prefranks = $this.Players `
-        | select PositionPrefRank `
-        | Where-Object {
-             1 -eq $_.value
-         } | select key
+        | %{ @{'FavPosition' = ($_ | select PositionPrefRank `
+        |  %{$_.psobject.properties | %{$_.Value.psobject.properties | ?{$_.value -eq 1}}
+    } | select -exp Name); 'Player' = $_} }
+
         return $prefranks
     }
 }

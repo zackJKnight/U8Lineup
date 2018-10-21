@@ -13,11 +13,11 @@ try {
                 [System.Collections.Generic.List[Player]]$players = New-Object System.Collections.Generic.List[Player]
                 (Get-GameData '../u8Lineup.data.json').players | ForEach-Object {
                     $players.Add([Player]::new($_.firstName, $_.lastName, $_.playerPositionPreference))
-                    $TestTeam.Players += $players;
                 }
+                $TestTeam.Players += $players;
             }
             it 'Returns a list of Players with their favorite position' {
-                $TestTeam.GetPlayersWithFavoritePosition() | Should -Be $null
+                $TestTeam.GetPlayersWithFavoritePosition() | Should -Not -Be $null
             }
         }
     } #InModuleScope
