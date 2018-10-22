@@ -4,9 +4,11 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 
 Describe "YouthSoccerLineup" {
-
     $result = YouthSoccerLineup
-
+BeforeEach{
+    $resultTeam = $result[13] #clean out the pipeline
+    $playersFavoritePosition = $resultTeam.GetPlayersWithFavoritePosition()
+}
     It "Does not bench a player more than twice" {
         
         $team = $result | Select-Object * | Where-Object{ $null -ne $_.Games }
@@ -21,11 +23,11 @@ Describe "YouthSoccerLineup" {
     }
 
     It "Prefers a player's favorite position" {
-        $playersFavoritePosition = $result.GetPlayersWithFavoritePosition
+
         $result.Games[0].Periods | Select-Object -expandproperty Positions | Where-Object {
             $_.Name -notmatch 'Bench'
         } `
         | Select-Object -expandproperty StartingPlayer `
-        | Should -Be $true
+        | Should -Be -in $playersFavoritePosition
     }
 }

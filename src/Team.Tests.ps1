@@ -20,8 +20,8 @@ try {
                 $TestTeam.GetPlayersWithFavoritePosition() | Should -Not -Be $null
             }
         }
-    } #InModuleScope
-} # try
-finally {
-    # We are done but this could be where we run cleanup of the module or any other action.  This code will always run even on failure.
+    } 
+} 
+finally{
+    
 }

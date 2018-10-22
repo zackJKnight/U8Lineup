@@ -3,7 +3,7 @@ Using module ./Player.psm1
 
 class Team {
     [string]$Name;
-    $Players;
+    [System.Collections.Generic.List[System.Object]]$Players;
     $Games;
 
     Team([string]$name) {

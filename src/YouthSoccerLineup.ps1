@@ -35,17 +35,19 @@ $game.Ref = $RefereeName
 
 $GameData.players | ForEach-Object {
     $players.Add([Player]::new($_.firstName, $_.lastName, $_.playerPositionPreference))
-}
+} | Out-Null
 
-$Team.Players += $players;
+$players | ForEach-Object {
+$Team.Players.Add($_)
+} | Out-Null
 
 1..$TotalPeriods | ForEach-Object {
     $game.Periods.Add([Period]::new($_, $PeriodDurationMinutes))
-}
+} | Out-Null
 
 $game.Periods | ForEach-Object {
-    $_.Positions = New-PositionList $GameData.positions
-}
+    $_.Positions = (New-PositionList -GameDataPositions $GameData.positions)
+} | Out-Null
 
 $game.Periods | ForEach-Object {
     $CurrentPeriod = $_
@@ -74,7 +76,7 @@ $game.Periods | ForEach-Object {
                     $_.StartingPlayer = $currentPlayer
                 }
             }
-        }
+        } | Out-Null
     }
 
     $PeriodPositions | ForEach-Object {
@@ -93,7 +95,7 @@ $game.Periods | ForEach-Object {
             } | Select-Object -First 1
             if($null -eq $_.StartingPlayer) {
             $_.StartingPlayer = $BenchPlayer 
-            }
+            } 
         }        
         elseif (($null -eq $_.StartingPlayer)) {
             # TODO Learn why your pipeline has an object array with an empty first index
@@ -106,9 +108,11 @@ $game.Periods | ForEach-Object {
 }
 
 $Team.Games += $game;
-$game.WriteGame();
-$Team
+#$game.WriteGame();
+$GameData = $null
+$players = $null
+return $Team
 
 }
 
-YouthSoccerLineup
+#YouthSoccerLineup

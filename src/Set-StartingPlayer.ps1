@@ -9,18 +9,18 @@ function Set-StartingPlayer {
     
     #bench players may not prefer the first three positions, which leaves them at the end of the line.
     if ($null -ne $PlayersComingOffBench) {
-        $GoodFitPlayer = $PlayersComingOffBench | Get-Random
+        $GoodFitPlayer = $PlayersComingOffBench | Get-Random -Count 1
     }
 
     if ($null -eq $GoodFitPlayer) {
-        $GoodFitPlayer = $PlayersWhoPreferCurrentPosition | Get-Random
+        $GoodFitPlayer = $PlayersWhoPreferCurrentPosition | Get-Random -Count 1
     }
 
     if ($null -ne $GoodFitPlayer) {
         $GoodFitPlayer
     }
     else {
-        $GoodFitPlayer = $PlayersThatHaventPlayedYet | Get-Random
+        $GoodFitPlayer = $PlayersThatHaventPlayedYet | Get-Random -Count 1
         $GoodFitPlayer
     }
 }
