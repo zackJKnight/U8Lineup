@@ -115,4 +115,24 @@ return $Team
 
 }
 
-#YouthSoccerLineup
+$team = YouthSoccerLineup
+$paragraph = New-UDParagraph -Text "Game Date: $($team[13].Games.PlayDate)"
+
+$table = New-UDTable -Title "Lineup for Period: $($team[13].Games.Periods[0].Number)"  -Headers @('Position', 'Player') -Endpoint {
+    $team[13].Games.Periods[0].Positions | % {
+        @{
+            $_.Name = $_.StartingPlayer.FirstName
+    }.GetEnumerator() | Out-UDTableData -Property @('Name', 'Value')
+}
+}
+
+$cards = $team[13].Games.Periods[0].Positions | % {
+New-UDCard -Title $_.Name -Text $_.StartingPlayer.FirstName -Size small -TextSize Medium
+}
+
+$page = New-UDPage -Name "lineup" -Content {@($paragraph, $table)} #Game on $($team[13].Games.PlayDate)
+
+
+$LineupDashboard = New-UDDashboard -Title "$($team[13].Name)'s Lineup" -Pages @($page)
+
+Start-UDDashboard -Dashboard $LineupDashboard
