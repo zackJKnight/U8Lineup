@@ -5,13 +5,13 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
 Describe "YouthSoccerLineup" {
     $result = YouthSoccerLineup
-BeforeEach{
-    $resultTeam = $result[13] #clean out the pipeline
-    $playersFavoritePosition = $resultTeam.GetPlayersWithFavoritePosition()
-}
+    BeforeEach {
+        $resultTeam = $result[13] #clean out the pipeline
+        $playersAndTheirFavoritePosition = $resultTeam.GetPlayersWithFavoritePosition()
+    }
     It "Does not bench a player more than twice" {
         
-        $team = $result | Select-Object * | Where-Object{ $null -ne $_.Games }
+        $team = $result | Select-Object * | Where-Object { $null -ne $_.Games }
         $team.Games[0].Periods | Select-Object -expandproperty Positions | Where-Object {
             $_.Name -match 'Bench'
         } | Select-Object -expandproperty StartingPlayer `
@@ -24,10 +24,22 @@ BeforeEach{
 
     It "Prefers a player's favorite position" {
 
-        $result.Games[0].Periods | Select-Object -expandproperty Positions | Where-Object {
+        $playerPositionAssignments = $result.Games[0].Periods | Select-Object -expandproperty Positions | Where-Object {
             $_.Name -notmatch 'Bench'
         } `
-        | Select-Object -expandproperty StartingPlayer `
-        | Should -Be -in $playersFavoritePosition
+            | Select-Object -property Name, StartingPlayer
+        
+        $playersThatDidNotGetTheirFavoritePosition = $playerPositionAssignments | ForEach-Object {
+            $playerAssignment = @{
+                'Player' = $_.Player
+                'Position' = $_.Position
+            }
+            Where-Object {
+                $playerAssignment -in $playersAndTheirFavoritePosition
+            } | Select-Object -ExpandProperty StartingPlayer
+        }
+        #TODO Fail until you can finish this test
+Should -Be $false
+        #$playersThatDidNotGetTheirFavoritePosition | Should -Be $null
     }
 }
