@@ -31,15 +31,9 @@ $GameData = Get-GameData $DataFilePath
 
 $game.Ref = $RefereeName
 
-[System.Collections.Generic.List[Player]]$players = New-Object System.Collections.Generic.List[Player]
-
 $GameData.players | ForEach-Object {
-    $players.Add([Player]::new($_.firstName, $_.lastName, $_.playerPositionPreference))
-} | Out-Null
-
-$players | ForEach-Object {
-$Team.Players.Add($_)
-} | Out-Null
+    $Team.Players.Add([Player]::new($_.firstName, $_.lastName, $_.playerPositionPreference))
+}
 
 1..$TotalPeriods | ForEach-Object {
     $game.Periods.Add([Period]::new($_, $PeriodDurationMinutes))
@@ -58,7 +52,7 @@ $game.Periods | ForEach-Object {
     #$PlayersInPositionLastPeriod = $game.GetPlayersInPositionLastPeriod($CurrentPeriod.Number);
     $PlayersComingOffBench = $game.GetPlayersFromBenchLastPeriod($CurrentPeriod.Number);
 
-    $playersThatHaventPlayedYet = $players |#inst showing bench players
+    $playersThatHaventPlayedYet = $Team.Players |#inst showing bench players
         Where-Object {
         $_ -notin ($PlayersInAnyPositionThisGame | Select-Object -ExpandProperty StartingPlayer )
     }
@@ -76,7 +70,7 @@ $game.Periods | ForEach-Object {
                     $_.StartingPlayer = $currentPlayer
                 }
             }
-        } | Out-Null
+        }
     }
 
     $PeriodPositions | ForEach-Object {
@@ -84,13 +78,13 @@ $game.Periods | ForEach-Object {
         #need to place our bench players first            
         $CurrentPeriodStartingPlayers = $CurrentPeriod.GetStartingPlayers();
         $CurrentPeriodBenchPlayers = $CurrentPeriod.GetBenchPlayers();
-        $AvailablePlayersWhoPreferCurrentPosition = Get-PlayersThatPreferPosition -CurrentPlayerList $players -CurrentPositionName $_.Name -CurrentPeriodStartingPlayers $CurrentPeriodStartingPlayers | Where-Object {$null -ne $_}
+        $AvailablePlayersWhoPreferCurrentPosition = Get-PlayersThatPreferPosition -CurrentPlayerList $Team.Players -CurrentPositionName $_.Name -CurrentPeriodStartingPlayers $CurrentPeriodStartingPlayers | Where-Object {$null -ne $_}
 
         $PlayersFromBenchWhoPreferCurrentPosition = Get-PlayersThatPreferPosition -CurrentPlayerList $PlayersComingOffBench -CurrentPositionName $_.Name -CurrentPeriodStartingPlayers $CurrentPeriodStartingPlayers | Where-Object {$null -ne $_}
         
         if ($CurrentPeriod.PositionsFilled() -eq $true) {
             #positions are full. bench the rest
-            $BenchPlayer = $players | Where-Object {
+            $BenchPlayer = $Team.Players | Where-Object {
                 $_ -notin $CurrentPeriodStartingPlayers -and $_ -notin $CurrentPeriodBenchPlayers
             } | Select-Object -First 1
             if($null -eq $_.StartingPlayer) {
@@ -107,12 +101,13 @@ $game.Periods | ForEach-Object {
     }
 }
 
-$Team.Games += $game;
+$Team.Games.Add($game);
 #$game.WriteGame();
 $GameData = $null
-$players = $null
-return $Team
+
+#TODO Where does the list of Players get written to the pipeline?
+$Team;
 
 }
 
-#YouthSoccerLineup
+YouthSoccerLineup
